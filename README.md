@@ -76,4 +76,4 @@ This contract is developed using Clarity, the smart contract language for the St
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request..
