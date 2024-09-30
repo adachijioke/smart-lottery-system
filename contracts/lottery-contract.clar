@@ -19,6 +19,7 @@
 (define-constant ERR_LOTTERY_NOT_ENDED (err u103))
 (define-constant ERR_NO_PARTICIPANTS (err u104))
 (define-constant ERR_FAILED_TO_GET_BLOCK_INFO (err u105))
+(define-constant ERR_INVALID_DURATION (err u106))
 
 ;; data vars
 ;;
@@ -34,6 +35,7 @@
 (define-public (start-lottery (duration uint))
     (begin
         (asserts! (is-eq tx-sender contract-owner) ERR_OWNER_ONLY)
+        (asserts! (and (> duration u0) (<= duration u10000)) ERR_INVALID_DURATION)
         (var-set lottery-end-block (+ block-height duration))
         (ok true)
     )
