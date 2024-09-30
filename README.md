@@ -1,77 +1,97 @@
-# STX Lottery Smart Contract
+# Clarity Lottery Smart Contract
 
 ## Overview
 
-The STX Lottery is a decentralized lottery system built on the Stacks blockchain. It allows users to participate in a fair and transparent lottery using STX tokens. The lottery runs in cycles, with each cycle concluding when 100 tickets have been sold.
+This smart contract implements a flexible lottery system on the Stacks blockchain using the Clarity programming language. The contract supports two types of lotteries:
+
+1. Time-based: The lottery ends after a specified number of blocks.
+2. Participant-based: The lottery ends when a specified number of participants have joined.
 
 ## Features
 
-- Buy lottery tickets using STX tokens
-- Automatic draw when the ticket threshold is reached
-- Fair winner selection using blockchain-based randomness
-- Claim rewards for winning tickets
-- Cycle progression for continuous lottery operation
+- Two lottery types: time-based and participant-based
+- Configurable ticket price
+- Random winner selection using block information
+- Owner-only functions for starting lotteries and withdrawing funds
+- Public functions for buying tickets and drawing winners
+- Read-only functions for retrieving lottery information
 
-## Contract Details
+## Contract Structure
 
-- **Ticket Price**: 10 STX per ticket
-- **Tickets per Draw**: 100
-- **Minimum Participation**: 1 ticket (10 STX)
-- **Maximum Participation**: No limit (up to 100 tickets per cycle)
+### Constants
 
-## Smart Contract Functions
+- `contract-owner`: The principal who deployed the contract
+- Error codes for various failure conditions
+
+### Data Variables
+
+- `ticket-price`: The cost of a lottery ticket in microSTX
+- `lottery-end-condition`: Stores either the end block height or participant limit
+- `lottery-end-block`: The block height at which a time-based lottery ends
+- `participants`: A list of principals who have bought tickets
+- `lottery-type`: The current type of lottery ("time-based", "participant-based", or "none")
 
 ### Public Functions
 
-1. `buy-tickets(number-of-tickets: uint)`
-   - Purchase lottery tickets for the current cycle
-   - Returns: (ok true) on success, (err u100) if insufficient funds, (err u101) if cycle is full
-
-2. `perform-draw()`
-   - Initiates the winner selection process (owner-only function)
-   - Returns: (ok principal) with the winner's address on success, or an error code
-
-3. `claim-reward()`
-   - Allows the winner to claim their prize
-   - Returns: (ok true) on successful claim, or an error code
+1. `start-lottery`: Starts a time-based lottery
+2. `start-participant-lottery`: Starts a participant-based lottery
+3. `buy-ticket`: Allows users to purchase a lottery ticket
+4. `draw-winner`: Selects and pays the winner when the lottery ends
+5. `withdraw-funds`: Allows the contract owner to withdraw funds
 
 ### Read-Only Functions
 
-1. `get-cycle-progress()`
-   - Returns the current cycle's progress as a percentage (0-100)
+- `get-ticket-price`: Returns the current ticket price
+- `get-lottery-type`: Returns the current lottery type
+- `get-lottery-end-condition`: Returns the end condition (block height or participant limit)
+- `get-lottery-end-block`: Returns the end block for time-based lotteries
+- `get-participants`: Returns the list of current participants
+- `get-balance`: Returns the contract's current balance
 
-2. `get-participant-tickets(participant: principal)`
-   - Returns the number of tickets owned by a participant in the current cycle
+## Usage
 
-## Error Codes
+### Starting a Lottery
 
-- `ERR_UNAUTHORIZED (u101000)`: Unauthorized action
-- `ERR_CYCLE_INCOMPLETE (u101001)`: Lottery cycle is not complete
-- `ERR_NOT_WINNER (u101002)`: Caller is not the winner
-- `ERR_DRAW_ALREADY_DONE (u101003)`: Draw has already been performed for this cycle
+The contract owner can start either a time-based or participant-based lottery:
 
-## How to Participate
+```clarity
+;; Start a time-based lottery lasting 1000 blocks
+(contract-call? .lottery start-lottery u1000)
 
-1. Ensure you have sufficient STX tokens in your wallet.
-2. Call the `buy-tickets` function with the number of tickets you want to purchase.
-3. Wait for the cycle to complete (100 tickets sold).
-4. The contract owner will initiate the draw.
-5. If you're the winner, call the `claim-reward` function to receive your prize.
+;; Start a participant-based lottery with a limit of 50 participants
+(contract-call? .lottery start-participant-lottery u50)
+```
 
-## Development and Testing
+### Buying a Ticket
 
-This contract is developed using Clarity, the smart contract language for the Stacks blockchain. To set up your development environment:
+Any user can buy a ticket while the lottery is active:
 
-1. Install [Clarinet](https://github.com/hirosystems/clarinet)
-2. Clone this repository
-3. Run `clarinet console` to interact with the contract
-4. Use `clarinet test` to run the test suite
+```clarity
+(contract-call? .lottery buy-ticket)
+```
+
+### Drawing a Winner
+
+Once the lottery end condition is met, anyone can call the `draw-winner` function:
+
+```clarity
+(contract-call? .lottery draw-winner)
+```
+
+### Retrieving Lottery Information
+
+Use the read-only functions to get information about the current lottery:
+
+```clarity
+(contract-call? .lottery get-lottery-type)
+(contract-call? .lottery get-participants)
+```
 
 ## Security Considerations
 
-- The contract uses blockchain-based randomness for winner selection, which is influenced by block data.
-- There's no time limit for claiming rewards, so winners should claim their prizes promptly.
-- The contract owner has the responsibility to initiate the draw, which introduces a centralization point.
+- The contract uses `tx-sender` for authentication, ensuring only the contract owner can perform certain actions.
+- The winner selection process uses block information as a source of randomness
+- There's a maximum limit of 100 participants per lottery to prevent excessive gas costs.
 
 
 ## Contributing
