@@ -12,6 +12,11 @@ describe("lottery contract tests", () => {
     simnet.mineEmptyBlock();
   });
 
+  it('verifies the contract exists', () => {
+    const contractExists = simnet.callReadOnlyFn('lottery-contract', 'get-contract-owner', [], address1);
+    expect(contractExists.success).toBe(true);
+  });
+
   it('verifies starting a time-based lottery', () => {
     const startResponse = simnet.callPublicFn('lottery-contract', 'start-lottery', [Cl.uint(100)], address1);
     console.log("start lottery response: " + Cl.prettyPrint(startResponse.result));
