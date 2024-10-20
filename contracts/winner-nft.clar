@@ -30,9 +30,22 @@
 
 ;; data maps
 ;;
+;; define map to store the winner tokens
+(define-map tokens 
+    uint  ;; token-id
+    {
+        owner: principal,
+        token-uri: (string-utf8 256),
+        lottery-id: uint,
+        prize-amount: uint
+    }
+)
 
 ;; public functions
 ;;
+
+
+
 
 ;; private functions
 ;;
