@@ -41,9 +41,46 @@
     }
 )
 
+;; Track which lottery winners have minted
+(define-map lottery-minted
+    uint  ;; lottery-id
+    bool  ;; minted status
+)
+
 ;; public functions
 ;;
-
+;; Mint NFT for lottery winner
+(define-public (mint-winner-nft (lottery-id uint))
+    (let 
+        (
+            (new-token-id (+ (var-get last-token-id) u1))
+            (winner-info (unwrap! (contract-call? LOTTERY_CONTRACT get-lottery-winner lottery-id) ERR_NOT_AUTHORIZED))
+            (prize-amount (unwrap! (contract-call? LOTTERY_CONTRACT get-lottery-prize lottery-id) ERR_NOT_AUTHORIZED))
+        )
+        ;; Check if caller is the winner
+        (asserts! (is-eq tx-sender winner-info) ERR_NOT_WINNER)
+        
+        ;; Check if NFT was already minted for this lottery
+        (asserts! (is-none (map-get? lottery-minted lottery-id)) ERR_ALREADY_MINTED)
+        
+        ;; Update token ID counter
+        (var-set last-token-id new-token-id)
+        (var-set last-lottery-id lottery-id)
+        
+        ;; Mark lottery as minted
+        (map-set lottery-minted lottery-id true)
+        
+        ;; Store token information
+        (map-set tokens new-token-id {
+            owner: winner-info,
+            token-uri: (generate-token-uri new-token-id lottery-id prize-amount),
+            lottery-id: lottery-id,
+            prize-amount: prize-amount
+        })
+        
+        (ok new-token-id)
+    )
+)
 
 
 
