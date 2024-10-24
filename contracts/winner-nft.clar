@@ -6,6 +6,11 @@
 
 ;; traits
 ;;
+(use-trait lottery-trait {
+    get-lottery-winner: (fn (uint) (response principal uint)),
+    get-lottery-prize: (fn (uint) (response uint uint))
+})
+
 (define-constant MAIN_LOTTERY_CONTRACT .lottery-contract)
 
 ;; SIP-009 NFT trait
