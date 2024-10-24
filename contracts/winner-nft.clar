@@ -82,7 +82,21 @@
     )
 )
 
-
+;; Transfer token
+(define-public (transfer (token-id uint) (sender principal) (recipient principal))
+    (let 
+        ((token (unwrap! (map-get? tokens token-id) ERR_INVALID_TOKEN_ID)))
+        ;; Make sure the sender owns the token
+        (asserts! (is-eq tx-sender sender) ERR_NOT_AUTHORIZED)
+        (asserts! (is-eq (get owner token) sender) ERR_NOT_AUTHORIZED)
+        
+        ;; Update token owner
+        (map-set tokens token-id 
+            (merge token { owner: recipient }))
+            
+        (ok true)
+    )
+)
 
 ;; private functions
 ;;
