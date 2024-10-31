@@ -5,8 +5,13 @@ authors = []
 telemetry = true
 cache_dir = './.cache'
 requirements = []
-[contracts.lottery]
-path = 'contracts/lottery.clar'
+[contracts.lottery-contract]
+path = 'contracts/lottery-contract.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.winner-nft]
+path = 'contracts/winner-nft.clar'
 clarity_version = 2
 epoch = 2.5
 [repl.analysis]
