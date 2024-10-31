@@ -121,7 +121,6 @@
                 (winner (unwrap-panic (element-at participants-list (mod seed participants-count))))
                 (prize (stx-get-balance (as-contract tx-sender)))
             )
-
             ;; Store lottery results before transferring prize
             (map-set lottery-history current-id {
                 winner: winner,
