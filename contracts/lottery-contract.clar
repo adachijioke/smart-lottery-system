@@ -30,9 +30,19 @@
 (define-data-var lottery-end-block uint u0)
 (define-data-var participants (list 100 principal) (list))
 (define-data-var lottery-type (string-ascii 20) "time-based")
+(define-data-var last-winner (optional principal) none)
+(define-data-var current-lottery-id uint u0)
 
 ;; data maps
 ;;
+;; Store lottery results with round information
+(define-map lottery-history uint {
+    winner: principal,
+    prize-amount: uint,
+    participant-count: uint,
+    end-block: uint,
+    lottery-type: (string-ascii 20)
+})
 
 ;; public functions
 ;;
@@ -45,10 +55,12 @@
         (var-set lottery-end-condition u0)
         (var-set lottery-end-block (+ block-height duration))
         (var-set participants (list))
+        (var-set last-winner none)
         (ok true)
     )
 )
 
+;; function to start a participant based lottery
 (define-public (start-participant-lottery (participant-limit uint))
     (begin
         (asserts! (is-eq tx-sender contract-owner) ERR_OWNER_ONLY)
@@ -62,6 +74,7 @@
     )
 )
 
+;; function to buy a ticket
 (define-public (buy-ticket)
     (let 
         (
@@ -83,6 +96,7 @@
     )
 )
 
+;; function to draw a winner
 (define-public (draw-winner)
     (let
         (
@@ -113,6 +127,7 @@
     
 )
 
+;; function for owner to withdraw funds
 (define-public (withdraw-funds)
     (begin
         (asserts! (is-eq tx-sender contract-owner) ERR_OWNER_ONLY)
