@@ -22,6 +22,7 @@
 (define-constant ERR_INVALID_DURATION (err u106))
 (define-constant ERR_INVALID_PARTICIPANT_LIMIT (err u107))
 (define-constant ERR_LOTTERY_IN_PROGRESS (err u108))
+(define-constant ERR_INVALID_LOTTERY_ID (err u109))
 
 ;; data vars
 ;;
@@ -32,20 +33,6 @@
 (define-data-var lottery-type (string-ascii 20) "time-based")
 (define-data-var current-lottery-id uint u0)
 
-;; New data structures for winner tracking
-(define-data-var time-based-winners (list 500 {
-    winner: principal,
-    lottery-id: uint,
-    prize: uint,
-    block: uint
-}) (list))
-
-(define-data-var participant-based-winners (list 500 {
-    winner: principal,
-    lottery-id: uint,
-    prize: uint,
-    block: uint
-}) (list))
 
 ;; data maps
 ;;
@@ -194,6 +181,37 @@
 ;; Get information about a specific lottery round
 (define-read-only (get-lottery-info (lottery-id uint))
     (map-get? lottery-history lottery-id)
+)
+
+;; New function to get winner of a specific lottery
+(define-read-only (get-lottery-winner (lottery-id uint))
+    (let 
+        (
+            (lottery-data (map-get? lottery-history lottery-id))
+        )
+        (if (is-some lottery-data)
+            (ok (get winner (unwrap-panic lottery-data)))
+            ERR_INVALID_LOTTERY_ID
+        )
+    )
+)
+
+;; New function to get detailed winner information of a specific lottery
+(define-read-only (get-lottery-winner-info (lottery-id uint))
+    (let 
+        (
+            (lottery-data (map-get? lottery-history lottery-id))
+        )
+        (if (is-some lottery-data)
+            (ok {
+                winner: (get winner (unwrap-panic lottery-data)),
+                prize: (get prize-amount (unwrap-panic lottery-data)),
+                lottery-type: (get lottery-type (unwrap-panic lottery-data)),
+                end-block: (get end-block (unwrap-panic lottery-data))
+            })
+            ERR_INVALID_LOTTERY_ID
+        )
+    )
 )
 ;; private functions
 ;;
