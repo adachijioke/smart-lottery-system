@@ -55,7 +55,7 @@
         (var-set lottery-end-condition u0)
         (var-set lottery-end-block (+ block-height duration))
         (var-set participants (list))
-        (var-set last-winner none)
+        (var-set current-lottery-id (+ (var-get current-lottery-id) u1))
         (ok true)
     )
 )
@@ -70,6 +70,7 @@
         (var-set lottery-end-condition participant-limit)
         (var-set lottery-end-block u0)
         (var-set participants (list))
+        (var-set current-lottery-id (+ (var-get current-lottery-id) u1))
         (ok true)
     )
 )
@@ -102,6 +103,7 @@
         (
             (participants-list (var-get participants))
             (participants-count (len participants-list))
+            (current-id (var-get current-lottery-id))
         )
         (asserts!
             (if
@@ -118,6 +120,16 @@
                 (winner (unwrap-panic (element-at participants-list (mod seed participants-count))))
                 (prize (stx-get-balance (as-contract tx-sender)))
             )
+            
+            ;; Store lottery results before transferring prize
+            (map-set lottery-history current-id {
+                winner: winner,
+                prize-amount: prize,
+                participant-count: participants-count,
+                end-block: block-height,
+                lottery-type: (var-get lottery-type)
+            })
+
             (try! (as-contract (stx-transfer? prize tx-sender winner)))
             (var-set participants (list))
             (var-set lottery-type "none")
