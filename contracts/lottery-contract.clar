@@ -30,8 +30,22 @@
 (define-data-var lottery-end-block uint u0)
 (define-data-var participants (list 100 principal) (list))
 (define-data-var lottery-type (string-ascii 20) "time-based")
-(define-data-var last-winner (optional principal) none)
 (define-data-var current-lottery-id uint u0)
+
+;; New data structures for winner tracking
+(define-data-var time-based-winners (list 500 {
+    winner: principal,
+    lottery-id: uint,
+    prize: uint,
+    block: uint
+}) (list))
+
+(define-data-var participant-based-winners (list 500 {
+    winner: principal,
+    lottery-id: uint,
+    prize: uint,
+    block: uint
+}) (list))
 
 ;; data maps
 ;;
