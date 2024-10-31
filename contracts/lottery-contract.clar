@@ -120,7 +120,7 @@
                 (winner (unwrap-panic (element-at participants-list (mod seed participants-count))))
                 (prize (stx-get-balance (as-contract tx-sender)))
             )
-            
+
             ;; Store lottery results before transferring prize
             (map-set lottery-history current-id {
                 winner: winner,
@@ -173,6 +173,14 @@
     (stx-get-balance (as-contract tx-sender))
 )
 
+(define-read-only (get-current-lottery-id)
+    (var-get current-lottery-id)
+)
+
+;; Get information about a specific lottery round
+(define-read-only (get-lottery-info (lottery-id uint))
+    (map-get? lottery-history lottery-id)
+)
 ;; private functions
 ;;
 
