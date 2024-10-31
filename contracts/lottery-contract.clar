@@ -212,7 +212,10 @@
         )
     )
 )
+<<<<<<< HEAD
 
+=======
+>>>>>>> 183132d... added functions to track winner of a lottery in history
 ;; private functions
 ;;
 
